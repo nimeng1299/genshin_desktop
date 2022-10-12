@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>img/Commission.png</file>
+        <file>img/Domains.png</file>
+        <file>img/FragileResin.png</file>
+        <file>img/ParametricTransformer.png</file>
+        <file>img/SereniteaPot.png</file>
+    </qresource>
+</RCC>

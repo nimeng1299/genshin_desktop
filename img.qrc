@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>img.jpg</file>
+        <file>settings.ico</file>
+        <file>browser.ico</file>
+        <file>trayicon.ico</file>
+    </qresource>
+</RCC>
