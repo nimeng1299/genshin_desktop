@@ -6,7 +6,7 @@
 使用 ***Qt 6.3.1*** 开发
 编译器 ***MSVC2019_64bit***
 
-#使用方法
+# 使用方法
 1. 下载文件[Releases](https://github.com/nimeng1299/genshin_desktop/releases/tag/Releases)
 2. 解压打开
 3. 右键登录
