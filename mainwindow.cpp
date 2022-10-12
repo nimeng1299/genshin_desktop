@@ -12,7 +12,7 @@
 #include <QCryptographicHash>
 QString user_data;
 QString max_resin = "160";
-int resintime;
+int resintime = 99999;
 bool resin_full = false ;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -28,7 +28,6 @@ MainWindow::MainWindow(QWidget *parent)
     m_move = false;
     user_data = QCoreApplication::applicationDirPath()+ "/user.data" ;//设置cookie路径
     get_user_info();
-    resin_time();
 }
 
 MainWindow::~MainWindow()
@@ -276,6 +275,7 @@ void MainWindow::update_user_data(QNetworkReply* reply)
         ui->label_8->setText(current_home_coin + "/" + max_home_coin);
         resintime = resin_recovery_time.toInt();
         qDebug() <<current_resin << Qt::endl<< resintime;
+        resin_time();
     }
     else
         traytoast("注意","获取信息失败，请刷新或重新登录");
@@ -290,10 +290,10 @@ void MainWindow::resin_time()
 //体力更新
 void MainWindow::resin_update()
 {
-    resintime -= 1;
+    resintime = resintime - 1;
     int max = max_resin.toInt();
     int last_resin = resintime / 480;
-    int resin = max - last_resin;
+    int resin = max - last_resin - 1;
     QString label_resin = QString::number(resin) + "/" + max_resin;
     if(label_resin != ui->label_5->text())
         ui->label_5->setText(label_resin);

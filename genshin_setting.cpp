@@ -70,6 +70,8 @@ void genshin_setting::on_pushButton_clicked()
 {
     QSettings *writeReg=new QSettings(AUTORUN,QSettings::NativeFormat);
     writeReg->setValue(KEY,path);
+    ui->pushButton->setEnabled(false);
+    ui->pushButton->setText("已设置开机启动");
     delete writeReg;
 }
 
