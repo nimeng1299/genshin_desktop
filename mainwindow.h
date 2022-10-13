@@ -31,8 +31,10 @@ public:
     void update_user_data(QNetworkReply* reply);
     void resin_time();
     void resin_update();
+    void read_start_path();
     QString ini = "setting";
-
+    QString start_path = "";
+    QString user_data;
 protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

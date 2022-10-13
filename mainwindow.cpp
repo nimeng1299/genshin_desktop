@@ -10,7 +10,8 @@
 #include <QDateTime>
 #include <QRandomGenerator>
 #include <QCryptographicHash>
-QString user_data;
+#define AUTORUN "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+#define KEY "GenshinDesktop"
 QString max_resin = "160";
 int resintime = 99999;
 bool resin_full = false ;
@@ -20,14 +21,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setAttribute(Qt::WA_TranslucentBackground);
-
     //托盘操作
     trayIcon = new QSystemTrayIcon(this);
     trayIcon -> setIcon(QIcon(":/img/settings.ico"));
     /*给是否移动的标志初始化为false*/
     m_move = false;
-    user_data = QCoreApplication::applicationDirPath()+ "/user.data" ;//设置cookie路径
-    get_user_info();
+
 }
 
 MainWindow::~MainWindow()
@@ -298,4 +297,34 @@ void MainWindow::resin_update()
     if(label_resin != ui->label_5->text())
         ui->label_5->setText(label_resin);
     //qDebug() << resintime << Qt::endl;
+}
+//找到运行目录
+void MainWindow::read_start_path()
+{
+    QSettings *Reg=new QSettings(AUTORUN,QSettings::NativeFormat);
+    QStringList keys = Reg->allKeys();
+
+    for(int i  = 0 ; i < keys.size();i++)
+    {
+        QString id = keys.at(i);
+        if(id.contains(KEY))
+        {
+            QString a;
+            QVariant v = Reg -> value(KEY);
+            a = v.toString();
+            start_path = a.right(a.length() - 1);
+            start_path.chop(19);
+            break;
+        }
+        else
+        {
+            start_path = QCoreApplication::applicationDirPath();
+        }
+    }
+    ini = start_path + "setting";
+    user_data = start_path + "user.data" ;//设置cookie路径
+    qDebug() << start_path << Qt::endl
+                << ini << Qt::endl
+                << user_data << Qt::endl;
+    delete Reg;
 }

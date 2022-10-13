@@ -36,6 +36,6 @@ RESOURCES += \
     img.qrc
 
 #程序版本
-VERSION = 1.0.0
+VERSION = 1.0.1
 #程序图标
 RC_ICONS = ico.ico

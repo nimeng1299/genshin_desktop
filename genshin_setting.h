@@ -14,13 +14,10 @@ class genshin_setting : public QWidget
 public:
     explicit genshin_setting(QWidget *parent = nullptr);
     ~genshin_setting();
-    void IsAdminRun();
 
 private slots:
     void on_pushButton_3_clicked();
-
     void on_pushButton_2_clicked();
-
     void on_pushButton_clicked();
 
 private:

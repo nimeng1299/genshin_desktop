@@ -1,7 +1,6 @@
 #include "genshin_setting.h"
 #include "ui_genshin_setting.h"
 #include <QDesktopServices>
-#include <ShlObj.h>
 #include <QDir>
 #include <QSettings>
 #define AUTORUN "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
@@ -13,7 +12,7 @@ genshin_setting::genshin_setting(QWidget *parent) :
     ui(new Ui::genshin_setting)
 {
     ui->setupUi(this);
-    path = QDir::toNativeSeparators(QApplication::applicationFilePath());
+    path = "\"" + QDir::toNativeSeparators(QApplication::applicationFilePath()) + "\"";
 
     QSettings *Reg=new QSettings(AUTORUN,QSettings::NativeFormat);
     QStringList keys = Reg->allKeys();
@@ -31,35 +30,18 @@ genshin_setting::genshin_setting(QWidget *parent) :
                 ui->pushButton->setText("已设置开机启动");
             }
             else
-                IsAdminRun();
+            {
+                ui->pushButton->setEnabled(true);
+                ui->pushButton->setText("设置开机启动");
+            }
 
             delete ReadReg;
             break;
         }
-        else
-            IsAdminRun();
     }
     delete Reg;
-
 }
 
-void genshin_setting::IsAdminRun()
-{
-    BOOL bIsAdmin = IsUserAnAdmin();
-
-    if(bIsAdmin)
-    {
-       qDebug() << "Run As administrator";
-       ui->pushButton->setEnabled(true);
-       ui->pushButton->setText("设置开机启动");
-    }
-    else
-    {
-       qDebug() << "Run As user";
-       ui->pushButton->setEnabled(false);
-       ui->pushButton->setText("请以管理员身份运行");
-    }
-}
 genshin_setting::~genshin_setting()
 {
     delete ui;
