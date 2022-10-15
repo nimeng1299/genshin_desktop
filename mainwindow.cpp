@@ -283,6 +283,7 @@ void MainWindow::update_user_data(QNetworkReply* reply)
 void MainWindow::resin_time()
 {
     resin_timer = new QTimer(this);
+    resin_timer->setTimerType(Qt::PreciseTimer);
     connect(resin_timer, &QTimer::timeout, this, &MainWindow::resin_update);
     resin_timer->start( 1000 );
 }
