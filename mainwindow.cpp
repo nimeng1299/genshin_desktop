@@ -13,7 +13,7 @@
 #define AUTORUN "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
 #define KEY "GenshinDesktop"
 QString max_resin = "160";
-int resintime = 99999;
+int resintime = 99999; //回满体力的时间戳
 bool resin_full = false ;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -261,6 +261,7 @@ void MainWindow::update_user_data(QNetworkReply* reply)
     {
         current_resin = data.mid(data.indexOf("current_resin") + 15,data.indexOf("max_resin") - 17 - data.indexOf("current_resin"));
         max_resin = data.mid(data.indexOf("max_resin") + 11,data.indexOf("resin_recovery_time") - 13 - data.indexOf("max_resin"));//这个在全局变量里了
+        //QString::number(QDateTime::currentSecsSinceEpoch())
         resin_recovery_time = data.mid(data.indexOf("resin_recovery_time") + 22,data.indexOf("finished_task_num") - 25 - data.indexOf("resin_recovery_time"));
         finished_task_num = data.mid(data.indexOf("finished_task_num") + 19,data.indexOf("total_task_num") - 21 - data.indexOf("finished_task_num"));
         total_task_num = data.mid(data.indexOf("total_task_num") + 16,data.indexOf("is_extra_task_reward_received") - 18 - data.indexOf("total_task_num"));
@@ -272,7 +273,7 @@ void MainWindow::update_user_data(QNetworkReply* reply)
         ui->label_6->setText(current_expedition_num + "/" + max_expedition_num);
         ui->label_7->setText(finished_task_num + "/" + total_task_num);
         ui->label_8->setText(current_home_coin + "/" + max_home_coin);
-        resintime = resin_recovery_time.toInt();
+        resintime = resin_recovery_time.toInt() + QDateTime::currentSecsSinceEpoch();
         qDebug() <<current_resin << Qt::endl<< resintime;
         resin_time();
     }
@@ -290,9 +291,9 @@ void MainWindow::resin_time()
 //体力更新
 void MainWindow::resin_update()
 {
-    resintime = resintime - 1;
     int max = max_resin.toInt();
-    int last_resin = resintime / 480;
+    int resin_time = resintime - QDateTime::currentSecsSinceEpoch();
+    int last_resin = resin_time / 480;
     int resin = max - last_resin - 1;
     QString label_resin = QString::number(resin) + "/" + max_resin;
     if(label_resin != ui->label_5->text())
