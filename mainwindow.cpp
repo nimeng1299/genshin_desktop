@@ -49,15 +49,17 @@ void MainWindow::initialize(int argc, char *argv[])
     qDebug() << argc;
     for(int i = 0; i < argc; i++)
     {
-        this->arg << argv[i];
+        if(i == 0)
+            this->arg << QString::fromLocal8Bit(argv[i]);//防止中文路径报错
+        else
+            this->arg << argv[i];
     }
-    //read_start_path();
+    //traytoast("11", arg.at(0));
     this -> start_path = this->arg.at(0).left(this->arg.at(0).lastIndexOf("\\") + 1);
     this -> ini = this -> start_path + "setting";
     this -> user_data = this -> start_path + "user.data" ;//设置cookie路径
     move(readini(this->ini,"/settings/x").toInt(), readini(this->ini,"/settings/y").toInt());
     get_user_info();
-    //qDebug() << this->ini << readini(this->ini,"/settings/x") <<readini(this->ini,"/settings/y");
     qDebug() << start_path << Qt::endl
                 << ini << Qt::endl
                 << user_data << Qt::endl;
