@@ -10,9 +10,12 @@
 #include <QDateTime>
 #include <QRandomGenerator>
 #include <QCryptographicHash>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 #define AUTORUN "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
 #define KEY "GenshinDesktop"
-QString max_resin = "160";
+int max_resin = 160;
 int resintime = 99999; //回满体力的时间戳
 bool resin_full = false ;
 MainWindow::MainWindow(QWidget *parent)
@@ -40,6 +43,25 @@ void MainWindow::paintEvent(QPaintEvent *)
 
     //painter.
 }
+//初始化
+void MainWindow::initialize(int argc, char *argv[])
+{
+    qDebug() << argc;
+    for(int i = 0; i < argc; i++)
+    {
+        this->arg << argv[i];
+    }
+    //read_start_path();
+    this -> start_path = this->arg.at(0).left(this->arg.at(0).lastIndexOf("\\") + 1);
+    this -> ini = this -> start_path + "setting";
+    this -> user_data = this -> start_path + "user.data" ;//设置cookie路径
+    move(readini(this->ini,"/settings/x").toInt(), readini(this->ini,"/settings/y").toInt());
+    get_user_info();
+    //qDebug() << this->ini << readini(this->ini,"/settings/x") <<readini(this->ini,"/settings/y");
+    qDebug() << start_path << Qt::endl
+                << ini << Qt::endl
+                << user_data << Qt::endl;
+}
 
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
@@ -47,7 +69,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     //窗口移动
     if (event->button() == Qt::LeftButton)
     {
-        m_move = true;
+       m_move = true;
        m_startPoint = event->globalPos();
        m_windowPoint = this->frameGeometry().topLeft();
     }
@@ -167,7 +189,7 @@ QString MainWindow::readini(QString path, QString name)
    delete read;
    return result;
 }
-//进行get获取个人信息
+//进行get获取个人信息 cookie需要cookie_token_v2
 void MainWindow::get_user(QByteArray cookies)
 {
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
@@ -175,6 +197,7 @@ void MainWindow::get_user(QByteArray cookies)
     connect(manager,&QNetworkAccessManager::finished,this,&MainWindow::get_user_reply);
     request.setUrl(QUrl("https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=hk4e_cn"));
     request.setRawHeader("Cookie",cookies);
+    qDebug() << cookies ;
     manager->get(request);
 }
 void MainWindow::get_user_reply(QNetworkReply* reply)
@@ -188,7 +211,6 @@ void MainWindow::get_user_reply(QNetworkReply* reply)
 //这里是获取uid和名称
 bool MainWindow::get_uid(QString data)
 {
-    qDebug() << data;
     if(data.contains("game_uid",Qt::CaseSensitive) && data.contains("nickname",Qt::CaseSensitive))
     {
         //int uid , name ;
@@ -211,6 +233,7 @@ bool MainWindow::get_uid(QString data)
 //获取树脂方面的信息
 void MainWindow::get_user_info()
 {
+    qDebug() << "get_user_info";
     QByteArray cookie;
     QString region , uid , strurl , DS;
     QFile file(user_data);
@@ -219,9 +242,11 @@ void MainWindow::get_user_info()
     file.close();
     region = readini(ini , "/user/region");
     uid = readini(ini,"/user/uid");
+    qDebug() << cookie;
     //进行get操作
     strurl = "https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/dailyNote?role_id=" + uid + "&server=" + region;
     DS = get_DS(region , uid);
+    qDebug() << DS;
     QNetworkAccessManager* Qmanager = new QNetworkAccessManager(this);
     QNetworkRequest Qrequest;
     connect(Qmanager,&QNetworkAccessManager::finished,this,&MainWindow::update_user_data);
@@ -250,35 +275,44 @@ void MainWindow::get_user_info()
 //更新数据
 void MainWindow::update_user_data(QNetworkReply* reply)
 {
-    QString data = reply->readAll().data();
-    qDebug() << Qt::endl << data ;
-    QString current_resin,  resin_recovery_time, finished_task_num, total_task_num;
-    QString current_expedition_num, max_expedition_num, current_home_coin, max_home_coin;
-    //name  = data.mid(data.indexOf("nickname") + 11,data.indexOf("level") - 14 - data.indexOf("nickname"));
-    QString message = data.mid(data.indexOf("message") + 10,data.indexOf("data\"") - 13 - data.indexOf("message"));
-    qDebug()<< message;
-    if (message == "OK")
+    QByteArray data = reply->readAll();
+
+    if(this->arg.contains("-debug"))
     {
-        current_resin = data.mid(data.indexOf("current_resin") + 15,data.indexOf("max_resin") - 17 - data.indexOf("current_resin"));
-        max_resin = data.mid(data.indexOf("max_resin") + 11,data.indexOf("resin_recovery_time") - 13 - data.indexOf("max_resin"));//这个在全局变量里了
-        //QString::number(QDateTime::currentSecsSinceEpoch())
-        resin_recovery_time = data.mid(data.indexOf("resin_recovery_time") + 22,data.indexOf("finished_task_num") - 25 - data.indexOf("resin_recovery_time"));
-        finished_task_num = data.mid(data.indexOf("finished_task_num") + 19,data.indexOf("total_task_num") - 21 - data.indexOf("finished_task_num"));
-        total_task_num = data.mid(data.indexOf("total_task_num") + 16,data.indexOf("is_extra_task_reward_received") - 18 - data.indexOf("total_task_num"));
-        current_expedition_num = data.mid(data.indexOf("current_expedition_num") + 24,data.indexOf("max_expedition_num") - 26 - data.indexOf("current_expedition_num"));
-        max_expedition_num = data.mid(data.indexOf("max_expedition_num") + 20,data.indexOf("expeditions") - 22 - data.indexOf("max_expedition_num"));
-        current_home_coin = data.mid(data.indexOf("current_home_coin") + 19,data.indexOf("max_home_coin") - 21 - data.indexOf("current_home_coin"));
-        max_home_coin = data.mid(data.indexOf("max_home_coin") + 15,data.indexOf("home_coin_recovery_time") - 17 - data.indexOf("max_home_coin"));
-        ui->label_5->setText(current_resin + "/" + max_resin);
-        ui->label_6->setText(current_expedition_num + "/" + max_expedition_num);
-        ui->label_7->setText(finished_task_num + "/" + total_task_num);
-        ui->label_8->setText(current_home_coin + "/" + max_home_coin);
+        out_log(data);
+    }
+    qDebug() << Qt::endl << data ;
+
+    //重写
+    int current_resin,   finished_task_num, total_task_num;
+    QString resin_recovery_time;
+    int current_expedition_num, max_expedition_num, current_home_coin, max_home_coin;
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    QJsonObject jsonObj = doc.object();
+    if (jsonObj.value("message").toString() == "OK")
+    {
+        QJsonObject dataObj = jsonObj.value("data").toObject();
+        current_resin = dataObj.value("current_resin").toInt();
+        max_resin = dataObj.value("max_resin").toInt();
+        resin_recovery_time = dataObj.value("resin_recovery_time").toString();
+        finished_task_num = dataObj.value("finished_task_num").toInt();
+        total_task_num = dataObj.value("total_task_num").toInt();
+        current_expedition_num = dataObj.value("current_expedition_num").toInt();
+        max_expedition_num = dataObj.value("max_expedition_num").toInt();
+        current_home_coin = dataObj.value("current_home_coin").toInt();
+        max_home_coin = dataObj.value("max_home_coin").toInt();
+        ui->label_5->setText(QString::number(current_resin) + "/" + QString::number(max_resin));
+        ui->label_6->setText(QString::number(current_expedition_num) + "/" + QString::number(max_expedition_num));
+        ui->label_7->setText(QString::number(finished_task_num) + "/" + QString::number(total_task_num));
+        ui->label_8->setText(QString::number(current_home_coin) + "/" + QString::number(max_home_coin));
         resintime = resin_recovery_time.toInt() + QDateTime::currentSecsSinceEpoch();
-        qDebug() <<current_resin << Qt::endl<< resintime;
+        qDebug() << "1111"<< Qt::endl<<Qt::endl<<dataObj.value("current_resin").toInt() << Qt::endl<< resintime;
         resin_time();
     }
     else
-        traytoast("注意","获取信息失败，请刷新或重新登录");
+    {
+        traytoast("错误", jsonObj.value("message").toString());
+    }
 }
 //体力倒计时
 void MainWindow::resin_time()
@@ -291,42 +325,37 @@ void MainWindow::resin_time()
 //体力更新
 void MainWindow::resin_update()
 {
-    int max = max_resin.toInt();
-    int resin_time = resintime - QDateTime::currentSecsSinceEpoch();
-    int last_resin = resin_time / 480;
-    int resin = max - last_resin - 1;
-    QString label_resin = QString::number(resin) + "/" + max_resin;
+    QString label_resin;
+    //qDebug() << resintime << QDateTime::currentSecsSinceEpoch();
+    if(resintime > QDateTime::currentSecsSinceEpoch())
+    {
+        int max = max_resin;
+        int resin_time = resintime - QDateTime::currentSecsSinceEpoch();
+        int last_resin = resin_time / 480;
+        int resin = max - last_resin - 1;
+        label_resin = QString::number(resin) + "/" + QString::number(max_resin);
+    }
+    else
+        label_resin = "160/160";
     if(label_resin != ui->label_5->text())
         ui->label_5->setText(label_resin);
     //qDebug() << resintime << Qt::endl;
 }
-//找到运行目录
-void MainWindow::read_start_path()
-{
-    QSettings *Reg=new QSettings(AUTORUN,QSettings::NativeFormat);
-    QStringList keys = Reg->allKeys();
 
-    for(int i  = 0 ; i < keys.size();i++)
-    {
-        QString id = keys.at(i);
-        if(id.contains(KEY))
-        {
-            QString a;
-            QVariant v = Reg -> value(KEY);
-            a = v.toString();
-            start_path = a.right(a.length() - 1);
-            start_path.chop(19);
-            break;
-        }
-        else
-        {
-            start_path = QCoreApplication::applicationDirPath();
-        }
-    }
-    ini = start_path + "setting";
-    user_data = start_path + "user.data" ;//设置cookie路径
-    qDebug() << start_path << Qt::endl
-                << ini << Qt::endl
-                << user_data << Qt::endl;
-    delete Reg;
+void MainWindow::out_log(QByteArray log)
+{
+    QDateTime dateTime(QDateTime::currentDateTime());
+    QString path = this->start_path + "log";
+    QString path_2 = path + "\\" + dateTime.toString("yy-MM-dd");
+    qDebug() << path;
+    QDir dir1(path);
+    if(!dir1.exists())
+        dir1.mkdir(path);
+    QDir dir2(path_2);
+    if(!dir2.exists())
+        dir2.mkdir(path_2);
+    QFile file(path_2 + "\\" + dateTime.toString("hh-mm-ss-") + QString::number(QDateTime::currentSecsSinceEpoch()) + ".txt");
+    file.open(QIODevice::ReadWrite|QIODevice::Text);
+    file.write(log);
+    file.close();
 }

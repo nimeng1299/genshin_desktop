@@ -7,6 +7,7 @@
 #include <QNetworkRequest>
 #include <QSystemTrayIcon>
 #include <QTimer>
+#include <QDir>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -19,6 +20,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void paintEvent(QPaintEvent *);
+    void initialize(int argc, char *argv[]);
     void writeini(QString,QString,QString);
     QString readini(QString,QString);
     void get_user(QByteArray);
@@ -31,10 +33,11 @@ public:
     void update_user_data(QNetworkReply* reply);
     void resin_time();
     void resin_update();
-    void read_start_path();
+    void out_log(QByteArray log);
     QString ini = "setting";
     QString start_path = "";
     QString user_data;
+    QList<QString> arg;
 protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

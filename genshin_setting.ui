@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>381</width>
-    <height>89</height>
+    <width>485</width>
+    <height>102</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,6 +18,13 @@
     <normaloff>:/img/settings.ico</normaloff>:/img/settings.ico</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="1">
+    <widget class="QPushButton" name="pushButton_3">
+     <property name="text">
+      <string>GitHub</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
@@ -35,17 +42,27 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QPushButton" name="pushButton_2">
      <property name="text">
       <string>当前版本：1.0.0</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="pushButton_3">
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>GitHub</string>
+      <string>设置带参数(-debug)开机启动（管理员身份）</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="pushButton_4">
+     <property name="text">
+      <string>设置</string>
      </property>
     </widget>
    </item>

@@ -26,17 +26,22 @@ genshin_setting::genshin_setting(QWidget *parent) :
             QString value=ReadReg->value(KEY).toString();
             if(value == path)
             {
-                ui->pushButton->setEnabled(false);
-                ui->pushButton->setText("已设置开机启动");
+                ui->pushButton->setText("取消开机启动");
+                ui->pushButton_4->setText("取消开机启动");
             }
             else
             {
-                ui->pushButton->setEnabled(true);
                 ui->pushButton->setText("设置开机启动");
+                ui->pushButton_4->setText("设置开机启动");
             }
 
             delete ReadReg;
             break;
+        }
+        else
+        {
+            ui->pushButton->setText("设置开机启动");
+            ui->pushButton_4->setText("设置开机启动");
         }
     }
     delete Reg;
@@ -50,13 +55,21 @@ genshin_setting::~genshin_setting()
 
 void genshin_setting::on_pushButton_clicked()
 {
-    QSettings *writeReg=new QSettings(AUTORUN,QSettings::NativeFormat);
-    writeReg->setValue(KEY,path);
-    ui->pushButton->setEnabled(false);
-    ui->pushButton->setText("已设置开机启动");
-    delete writeReg;
+    QSettings *Reg=new QSettings(AUTORUN,QSettings::NativeFormat);
+    if(ui->pushButton->text() == "设置开机启动")
+    {
+        Reg->setValue(KEY,path);
+        ui->pushButton->setText("取消开机启动");
+        ui->pushButton_4->setText("取消开机启动");
+    }
+    else
+    {
+        Reg->remove(KEY);
+        ui->pushButton->setText("设置开机启动");
+        ui->pushButton_4->setText("设置开机启动");
+    }
+    delete Reg;
 }
-
 
 
 void genshin_setting::on_pushButton_2_clicked()
@@ -73,4 +86,23 @@ void genshin_setting::on_pushButton_3_clicked()
 }
 
 
+
+
+void genshin_setting::on_pushButton_4_clicked()
+{
+    QSettings *Reg=new QSettings(AUTORUN,QSettings::NativeFormat);
+    if(ui->pushButton->text() == "设置开机启动")
+    {
+        Reg->setValue(KEY,path + " -debug");
+        ui->pushButton->setText("取消开机启动");
+        ui->pushButton_4->setText("取消开机启动");
+    }
+    else
+    {
+        Reg->remove(KEY);
+        ui->pushButton->setText("设置开机启动");
+        ui->pushButton_4->setText("设置开机启动");
+    }
+    delete Reg;
+}
 

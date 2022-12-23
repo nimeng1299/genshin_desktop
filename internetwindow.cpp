@@ -8,7 +8,7 @@ InternetWindow::InternetWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     //注：这里Debug模式可能会加载不出来网页，要换成Release模式
-    ui->myWeb->setUrl(QUrl("https://bbs.mihoyo.com/ys/"));
+    ui->myWeb->setUrl(QUrl("https://user.mihoyo.com/"));
 }
 
 InternetWindow::~InternetWindow()
